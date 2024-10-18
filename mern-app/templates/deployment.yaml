@@ -30,26 +30,52 @@ spec:
       serviceAccountName: {{ include "mern-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
       containers:
-        - name: {{ .Chart.Name }}
+        # Node.js Backend Container
+        - name: mern-backend  # Change to a suitable name for the backend
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.port }}  # Adjust this if your backend listens on a different port
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            httpGet:
+              path: /health  # Adjust this path as necessary for your backend health check
+              port: http
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: /health  # Adjust this path as necessary for your backend readiness check
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+
+        # React Frontend Container
+        - name: mern-frontend  # Change to a suitable name for the frontend
+          image: "{{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default .Chart.AppVersion }}"  # Use the client image defined in values.yaml
+          imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080   # Adjust to your frontend's listening port
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /  # Adjust this path as necessary for your frontend health check
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /  # Adjust this path as necessary for your frontend readiness check
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
