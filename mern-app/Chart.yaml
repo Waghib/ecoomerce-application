@@ -1,0 +1,21 @@
+apiVersion: v2
+name: mern-app
+description: A Helm chart for deploying a MERN application
+version: 0.1.0
+appVersion: "1.0"
+# icon: file://../assets/icon.png
+keywords:
+  - mern
+  - mongodb
+  - express
+  - react
+  - node
+maintainers:
+  - name: Waghib Ahmad
+    email: waghibahmad30@gmail.com  # Replace with your email
+sources:
+  - https://github.com/Waghib/ecoomerce-application.git  # Replace with your project's repository link
+dependencies:
+  - name: mongodb
+    version: 10.0.0
+    repository: https://charts.bitnami.com/bitnami  
