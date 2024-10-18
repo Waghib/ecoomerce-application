@@ -17,5 +17,5 @@ sources:
   - https://github.com/Waghib/ecoomerce-application.git  # Replace with your project's repository link
 dependencies:
   - name: mongodb
-    version: 10.0.0
-    repository: https://charts.bitnami.com/bitnami  
+    version: "16.0.3"  # Use a valid version here
+    repository: "https://charts.bitnami.com/bitnami"
