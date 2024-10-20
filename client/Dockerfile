@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install -g cross-env && npm install
 
 # Copy the rest of the client code
-COPY . .
+COPY . /usr/src/app/
 
 # Move .env.example to .env
 RUN mv .env.example .env
