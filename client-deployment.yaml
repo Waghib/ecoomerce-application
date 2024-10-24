@@ -1,9 +1,7 @@
-# client-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client
-  namespace: ecommerce
+  name: client-deployment
 spec:
   replicas: 1
   selector:
@@ -19,3 +17,9 @@ spec:
           image: waghib/ecommerce-client:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ecommerce-config
+                  key: CLIENT_URL
