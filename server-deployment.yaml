@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: your-dockerhub-username/server:v1
+          image: waghib/ecommerce-server:latest
           env:
             - name: PORT
               value: "3000"
