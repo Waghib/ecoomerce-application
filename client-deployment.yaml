@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: client
-          image: your-dockerhub-username/client:v1
+          image: waghib/ecommerce-client:latest
           ports:
             - containerPort: 8080
