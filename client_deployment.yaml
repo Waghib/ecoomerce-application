@@ -19,17 +19,3 @@ spec:
           image: your-dockerhub-username/client:v1
           ports:
             - containerPort: 8080
----
-# client-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: client
-  namespace: ecommerce
-spec:
-  selector:
-    app: client
-  ports:
-    - port: 8080
-      targetPort: 8080
-  type: LoadBalancer

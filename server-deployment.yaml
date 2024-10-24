@@ -30,17 +30,4 @@ spec:
               value: "mongodb://mongo:27017/mern_ecommerce"
           ports:
             - containerPort: 3000
----
-# server-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: server
-  namespace: ecommerce
-spec:
-  selector:
-    app: server
-  ports:
-    - port: 3000
-      targetPort: 3000
-  type: LoadBalancer
+
