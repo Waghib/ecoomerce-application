@@ -3,7 +3,7 @@ version: '3'
 services:
   client:
     build: ./client
-    container_name: client
+    container_name: ecommerce_client
     ports:
       - '8080:8080'
     volumes:
@@ -16,18 +16,23 @@ services:
 
   server:
     build: ./server
-    container_name: server
+    container_name: ecommerce_server
     environment:
-      - PORT=3001
+      - PORT=3000
       - BASE_API_URL=api
       - CLIENT_URL=http://localhost:8080
       - JWT_SECRET='waghib30 '
       - MONGO_URI=mongodb://mongo:27017/mern_ecommerce
     ports:
-      - '3001:3001'
+      - '3000:3000'
     volumes:
       - ./server:/usr/src/app # Mount local server code to container for live reloading
       - /usr/src/app/node_modules # Prevent overwriting node_modules
+    command: [
+        'sh',
+        '-c',
+        'npm run seed:db admin@example.com admin123 && npm start'
+      ] # Default email and password arguments to database seed script - update your admin email and password
     depends_on:
       - mongo
     networks:
@@ -35,7 +40,7 @@ services:
 
   mongo:
     image: mongo:latest
-    container_name: mongodb
+    container_name: ecommerce_mongodb
     command: mongod --quiet --logpath /dev/null
     ports:
       - '27017:27017'
@@ -45,3 +50,7 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
