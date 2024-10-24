@@ -1,0 +1,46 @@
+# server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: your-dockerhub-username/server:v1
+          env:
+            - name: PORT
+              value: "3000"
+            - name: BASE_API_URL
+              value: "api"
+            - name: CLIENT_URL
+              value: "http://localhost:8080"
+            - name: JWT_SECRET
+              value: "waghib30"
+            - name: MONGO_URI
+              value: "mongodb://mongo:27017/mern_ecommerce"
+          ports:
+            - containerPort: 3000
+---
+# server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: ecommerce
+spec:
+  selector:
+    app: server
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: LoadBalancer
