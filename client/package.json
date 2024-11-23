@@ -5,7 +5,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && cross-env NODE_ENV=production webpack --mode production --config webpack/webpack.prod.js",
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.dev.js"
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.dev.js",
+    "test": "react-scripts test --watchAll=false"
   },
   "dependencies": {
     "@fontsource/poppins": "^4.5.9",
@@ -23,6 +24,7 @@
     "react-autosuggest": "^10.1.0",
     "react-bootstrap-table-next": "^3.1.5",
     "react-bootstrap-table2-toolkit": "^2.0.1",
+    "react-scripts": "latest",
     "react-dom": "^16.8.6",
     "react-multi-carousel": "^2.5.5",
     "react-notification-system-redux": "^2.0.0",
