@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MERN Ecommerce Server",
   "scripts": {
-    "dev": "nodemon index.js", 
+    "dev": "nodemon index.js",
     "dev:server": "nodemon index.js",
     "start": "cross-env NODE_ENV=production nodemon index.js",
     "seed:db": "node utils/seed.js",
@@ -36,6 +36,7 @@
   "devDependencies": {
     "chalk": "^2.4.2",
     "cross-env": "^5.2.1",
+    "jest-junit": "^16.0.0",
     "nodemon": "^1.19.1"
   }
 }
