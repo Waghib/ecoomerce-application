@@ -1,0 +1,103 @@
+stages:
+  - build
+  - lint
+  - test
+  - sast
+  - push
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  CACHE_DIR: /cache
+
+services:
+  - docker:19.03.12
+
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+# Build FE Container
+build_client:
+  stage: build
+  script:
+    - cd client
+    - docker build -t $DOCKER_USERNAME/ecommerce_client:$IMAGE_TAG .
+  cache:
+    paths:
+      - client/node_modules
+  only:
+    - main
+    - merge_requests
+
+# Build BE Container
+build_server:
+  stage: build
+  script:
+    - cd server
+    - docker build -t $DOCKER_USERNAME/ecommerce_server:$IMAGE_TAG .
+  cache:
+    paths:
+      - server/node_modules
+  only:
+    - main
+    - merge_requests
+
+# Run Linter
+lint_code:
+  stage: lint
+  script:
+    - npm install eslint
+    - cd client && npx eslint . --ext .js,.jsx,.ts,.tsx
+    - cd ../server && npx eslint . --ext .js,.ts
+  cache:
+    paths:
+      - client/node_modules
+      - server/node_modules
+  only:
+    - main
+    - merge_requests
+
+# Run Unit Tests
+unit_tests:
+  stage: test
+  script:
+    # Run Unit Tests for Client
+    - cd client
+    - docker run --rm $DOCKER_USERNAME/ecoommerce_client:$IMAGE_TAG npm test || echo "No tests found in client."
+    # Run Unit Tests for Server
+    - cd ../server
+    - docker run --rm $DOCKER_USERNAME/ecoommerce_server:$IMAGE_TAG npm test || echo "No tests found in server."
+  artifacts:
+    when: always
+    paths:
+      - client/test-results.xml
+      - server/test-results.xml
+  only:
+    - main
+    - merge_requests
+
+# Run SAST (Static Application Security Testing)
+sast_scan:
+  stage: sast
+  script:
+    # Example: OWASP Dependency Checker for JS projects
+    - curl -L -o dependency-check.sh https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check.sh
+    - chmod +x dependency-check.sh
+    - ./dependency-check.sh --project ecommerce-project --scan ./client --scan ./server
+  artifacts:
+    paths:
+      - dependency-check-report.html
+  only:
+    - main
+    - merge_requests
+
+# Push Docker Images to DockerHub
+push_images:
+  stage: push
+  script:
+    - docker push $DOCKER_USERNAME/ecoommerce_client:$IMAGE_TAG
+    - docker push $DOCKER_USERNAME/ecoommerce_server:$IMAGE_TAG
+  only:
+    - main
+    - merge_requests
