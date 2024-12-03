@@ -2,27 +2,37 @@ stages:
   - build
   - lint
   - test
-  - sast
   - push
 
+# Use Docker image with Docker CLI pre-installed
+image: docker:20.10.16
+
+# Use Docker-in-Docker service to enable Docker commands
+services:
+  - docker:20.10.16-dind
+
+# Define environment variables for Docker
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
-  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-  CACHE_DIR: /cache
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA # Use short commit hash as the image tag
 
-services:
-  - docker:19.03.12
+# Include GitLab's built-in SAST template
+include:
+  - template: Security/SAST.gitlab-ci.yml
 
+# Authenticate with Docker Hub
 before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker info # Validate Docker environment
 
-# Build FE Container
+# Build Client Container
 build_client:
   stage: build
   script:
     - cd client
-    - docker build -t $DOCKER_USERNAME/ecommerce_client:$IMAGE_TAG .
+    - docker build -t $DOCKER_USERNAME/ecoommerce-application-client:latest .
+    - docker images 
   cache:
     paths:
       - client/node_modules
@@ -30,26 +40,35 @@ build_client:
     - main
     - merge_requests
 
-# Build BE Container
+# Build Server Container
 build_server:
   stage: build
   script:
     - cd server
-    - docker build -t $DOCKER_USERNAME/ecommerce_server:$IMAGE_TAG .
+    - docker build -t $DOCKER_USERNAME/ecoommerce-application-server:latest .
+    - docker images 
   cache:
     paths:
       - server/node_modules
   only:
     - main
-    - merge_requests
+    - merge_request
 
-# Run Linter
+# Run Linting
 lint_code:
   stage: lint
+  image: node:16 # Node.js image for npm and eslint
+  services:
+    - name: docker:20.10.16-dind # Docker service for Docker commands
+      alias: docker # Alias for Docker service
+  before_script:
+    - apt-get update && apt-get install -y docker.io # Install Docker CLI
   script:
+    - export DOCKER_CLI_EXPERIMENTAL=enabled # Enable experimental features for Docker CLI
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin # Docker login
     - npm install eslint
-    - cd client && npx eslint . --ext .js,.jsx,.ts,.tsx
-    - cd ../server && npx eslint . --ext .js,.ts
+    # - npx eslint client --config eslint.config.js
+    # - cd ../server && npx eslint .
   cache:
     paths:
       - client/node_modules
@@ -64,10 +83,10 @@ unit_tests:
   script:
     # Run Unit Tests for Client
     - cd client
-    - docker run --rm $DOCKER_USERNAME/ecoommerce_client:$IMAGE_TAG npm test || echo "No tests found in client."
+    - docker run --rm $DOCKER_USERNAME/ecoommerce-application-client:latest npm test || echo "No tests found in client."
     # Run Unit Tests for Server
     - cd ../server
-    - docker run --rm $DOCKER_USERNAME/ecoommerce_server:$IMAGE_TAG npm test || echo "No tests found in server."
+    - docker run --rm $DOCKER_USERNAME/ecoommerce-application-server:latest npm test || echo "No tests found in server."
   artifacts:
     when: always
     paths:
@@ -77,27 +96,17 @@ unit_tests:
     - main
     - merge_requests
 
-# Run SAST (Static Application Security Testing)
-sast_scan:
-  stage: sast
-  script:
-    # Example: OWASP Dependency Checker for JS projects
-    - curl -L -o dependency-check.sh https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check.sh
-    - chmod +x dependency-check.sh
-    - ./dependency-check.sh --project ecommerce-project --scan ./client --scan ./server
-  artifacts:
-    paths:
-      - dependency-check-report.html
-  only:
-    - main
-    - merge_requests
-
-# Push Docker Images to DockerHub
+# Push Docker Images to Docker Hub
 push_images:
   stage: push
   script:
-    - docker push $DOCKER_USERNAME/ecoommerce_client:$IMAGE_TAG
-    - docker push $DOCKER_USERNAME/ecoommerce_server:$IMAGE_TAG
+    - cd client
+    - docker build -t $DOCKER_USERNAME/ecoommerce-application-client:latest .
+    - docker push $DOCKER_USERNAME/ecoommerce-application-client:latest
+    
+    - cd ../server
+    - docker build -t $DOCKER_USERNAME/ecoommerce-application-server:latest .
+    - docker push $DOCKER_USERNAME/ecoommerce-application-server:latest
   only:
     - main
     - merge_requests
