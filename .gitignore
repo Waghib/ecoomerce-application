@@ -1,3 +1,26 @@
 node_modules
 configmap.yaml
 secrets.yaml
+
+# Local .terraform directories
+**/.terraform/*
+
+# Terraform State Files
+*.tfstate
+*.tfstate.backup
+
+# Crash Log Files
+crash.log
+
+# Terraform Variables File
+terraform.tfvars
+
+# Override Files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive Outputs
+*.pem
+*.key
