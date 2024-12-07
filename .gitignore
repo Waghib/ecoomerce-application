@@ -28,3 +28,14 @@ terraform/.terraform/providers/
 
 # Terraform provider binaries
 **/.terraform/providers/**
+
+# Terraform large files
+.terraform.lock.hcl
+**/.terraform.tfstate.lock.info
+.terraform/
+terraform/.terraform/
+
+# Local terraform directories and files
+.terraform/
+terraform.tfstate.d/
+.terragrunt-cache/
