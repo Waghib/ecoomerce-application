@@ -25,3 +25,6 @@ override.tf.json
 *.pem
 *.key
 terraform/.terraform/providers/
+
+# Terraform provider binaries
+**/.terraform/providers/**
