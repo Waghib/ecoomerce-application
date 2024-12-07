@@ -24,3 +24,4 @@ override.tf.json
 # Sensitive Outputs
 *.pem
 *.key
+terraform/.terraform/providers/
