@@ -21,6 +21,20 @@ variables:
 include:
   - template: Security/SAST.gitlab-ci.yml
 
+# Add SAST configuration
+sast:
+  stage: test
+  variables:
+    SAST_EXCLUDED_PATHS: "spec, test, tests, tmp"
+    SCAN_KUBERNETES_MANIFESTS: "false"
+  before_script: []  # Override the global before_script
+  script:
+    - /analyzer run
+  dependencies: []
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+
 # Authenticate with Docker Hub
 before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
