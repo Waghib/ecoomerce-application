@@ -16,6 +16,16 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA # Use short commit hash as the image tag
+  NODE_MODULES_CACHE_KEY: ${CI_COMMIT_REF_SLUG}
+  DOCKER_BUILDKIT: "1"  # Enable BuildKit for better caching
+  DOCKER_TLS_CERTDIR: ""  # Fix for DinD
+
+cache: &global_cache
+  key: ${NODE_MODULES_CACHE_KEY}
+  paths:
+    - client/node_modules/
+    - server/node_modules/
+  policy: pull-push
 
 # Include GitLab's built-in SAST template
 include:
@@ -48,11 +58,11 @@ build_client:
     - docker build -t $DOCKER_USERNAME/ecoommerce-application-client:latest .
     - docker images 
   cache:
-    paths:
-      - client/node_modules
-  only:
-    - main
-    - merge_requests
+    <<: *global_cache
+    policy: pull-push
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 # Build Server Container
 build_server:
@@ -62,34 +72,34 @@ build_server:
     - docker build -t $DOCKER_USERNAME/ecoommerce-application-server:latest .
     - docker images 
   cache:
-    paths:
-      - server/node_modules
-  only:
-    - main
-    - merge_request
+    <<: *global_cache
+    policy: pull-push
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 # Run Linting
 lint_code:
   stage: lint
-  image: node:16 # Node.js image for npm and eslint
+  image: node:16
   services:
-    - name: docker:20.10.16-dind # Docker service for Docker commands
-      alias: docker # Alias for Docker service
+    - name: docker:20.10.16-dind
+      alias: docker
   before_script:
-    - apt-get update && apt-get install -y docker.io # Install Docker CLI
+    - apt-get update && apt-get install -y docker.io
   script:
-    - export DOCKER_CLI_EXPERIMENTAL=enabled # Enable experimental features for Docker CLI
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin # Docker login
+    - export DOCKER_CLI_EXPERIMENTAL=enabled
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - npm install eslint
     # - npx eslint client --config eslint.config.js
     # - cd ../server && npx eslint .
   cache:
-    paths:
-      - client/node_modules
-      - server/node_modules
-  only:
-    - main
-    - merge_requests
+    <<: *global_cache
+    policy: pull
+  timeout: 30m
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 # Run Unit Tests
 unit_tests:
@@ -106,9 +116,12 @@ unit_tests:
     paths:
       - client/test-results.xml
       - server/test-results.xml
-  only:
-    - main
-    - merge_requests
+  needs:
+    - build_client
+    - build_server
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 # Push Docker Images to Docker Hub
 push_images:
@@ -121,6 +134,16 @@ push_images:
     - cd ../server
     - docker build -t $DOCKER_USERNAME/ecoommerce-application-server:latest .
     - docker push $DOCKER_USERNAME/ecoommerce-application-server:latest
-  only:
-    - main
-    - merge_requests
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+  needs:
+    - unit_tests
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+default:
+  timeout: 1h
