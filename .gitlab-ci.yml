@@ -16,6 +16,16 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA # Use short commit hash as the image tag
+  NODE_MODULES_CACHE_KEY: ${CI_COMMIT_REF_SLUG}
+  DOCKER_BUILDKIT: "1"  # Enable BuildKit for better caching
+  DOCKER_TLS_CERTDIR: ""  # Fix for DinD
+
+cache: &global_cache
+  key: ${NODE_MODULES_CACHE_KEY}
+  paths:
+    - client/node_modules/
+    - server/node_modules/
+  policy: pull-push
 
 # Include GitLab's built-in SAST template
 include:
@@ -23,7 +33,7 @@ include:
 
 # Add SAST configuration
 sast:
-  stage: test  # or whatever stage you prefer
+  stage: test
   variables:
     SAST_EXCLUDED_PATHS: "spec, test, tests, tmp"
     SCAN_KUBERNETES_MANIFESTS: "false"
@@ -48,11 +58,13 @@ build_client:
     - docker build -t $DOCKER_USERNAME/ecoommerce-application-client:latest .
     - docker images 
   cache:
-    paths:
-      - client/node_modules
+    <<: *global_cache
+    policy: pull-push
   only:
     - main
     - merge_requests
+  rules:
+    - !reference [.default_rules, rules]
 
 # Build Server Container
 build_server:
@@ -62,11 +74,13 @@ build_server:
     - docker build -t $DOCKER_USERNAME/ecoommerce-application-server:latest .
     - docker images 
   cache:
-    paths:
-      - server/node_modules
+    <<: *global_cache
+    policy: pull-push
   only:
     - main
-    - merge_request
+    - merge_requests
+  rules:
+    - !reference [.default_rules, rules]
 
 # Run Linting
 lint_code:
@@ -84,12 +98,14 @@ lint_code:
     # - npx eslint client --config eslint.config.js
     # - cd ../server && npx eslint .
   cache:
-    paths:
-      - client/node_modules
-      - server/node_modules
+    <<: *global_cache
+    policy: pull
   only:
     - main
     - merge_requests
+  timeout: 30m
+  rules:
+    - !reference [.default_rules, rules]
 
 # Run Unit Tests
 unit_tests:
@@ -109,6 +125,11 @@ unit_tests:
   only:
     - main
     - merge_requests
+  needs:
+    - build_client
+    - build_server
+  rules:
+    - !reference [.default_rules, rules]
 
 # Push Docker Images to Docker Hub
 push_images:
@@ -124,3 +145,22 @@ push_images:
   only:
     - main
     - merge_requests
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+  needs:
+    - unit_tests
+  rules:
+    - !reference [.default_rules, rules]
+
+default:
+  timeout: 1h
+  rules:
+    - !reference [.default_rules, rules]
+
+.default_rules: &default_rules
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
