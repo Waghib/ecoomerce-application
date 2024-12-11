@@ -184,10 +184,20 @@ deploy_client:
   <<: *deploy_template
   stage: deploy
   script:
-    - helm upgrade --install ecommerce-client ./helm/client 
-      --set image.repository=$DOCKER_USERNAME/ecoommerce-application-client
+    # Debug information
+    - pwd
+    - ls -la
+    # Install git to clone helm charts if needed
+    - yum install -y git
+    # Deploy using helm
+    - >
+      helm upgrade --install ecommerce-client ./helm/client 
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-client
       --set image.tag=latest
       --set service.type=LoadBalancer
+      --namespace default
+      --create-namespace
+      --wait
   needs:
     - push_images
   rules:
@@ -198,9 +208,19 @@ deploy_server:
   <<: *deploy_template
   stage: deploy
   script:
-    - helm upgrade --install ecommerce-server ./helm/server 
-      --set image.repository=$DOCKER_USERNAME/ecoommerce-application-server
+    # Debug information
+    - pwd
+    - ls -la
+    # Install git to clone helm charts if needed
+    - yum install -y git
+    # Deploy using helm
+    - >
+      helm upgrade --install ecommerce-server ./helm/server 
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-server
       --set image.tag=latest
+      --namespace default
+      --create-namespace
+      --wait
   needs:
     - push_images
   rules:
