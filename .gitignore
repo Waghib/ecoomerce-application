@@ -14,6 +14,8 @@ crash.log
 
 # Terraform Variables File
 terraform.tfvars
+*.tfvars
+*.tfvars.json
 
 # Override Files
 override.tf
@@ -39,3 +41,14 @@ terraform/.terraform/
 .terraform/
 terraform.tfstate.d/
 .terragrunt-cache/
+
+# Local terraform directories and files
+.terraform/
+terraform.tfstate.d/
+.terragrunt-cache/
+
+# aws folder
+aws/
+
+mern-app-0.1.0.tgz/
+awscli2.zip/
