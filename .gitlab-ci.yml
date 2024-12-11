@@ -150,8 +150,11 @@ push_images:
 # Add these new deployment jobs
 .deploy_template: &deploy_template
   image: 
-    name: dtzar/helm-kubectl:latest
+    name: amazon/aws-cli:latest
   before_script:
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - chmod +x kubectl && mv kubectl /usr/local/bin/
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set region us-east-1
