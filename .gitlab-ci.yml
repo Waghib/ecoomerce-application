@@ -152,16 +152,33 @@ push_images:
   image: 
     name: amazon/aws-cli:latest
   before_script:
-    - yum install -y curl  # Install curl for downloading Helm and kubectl
-    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    # Install required packages
+    - yum install -y curl
+    
+    # Install Helm
+    - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+    - chmod 700 get_helm.sh
+    - ./get_helm.sh
+    
+    # Install kubectl
     - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - chmod +x kubectl && mv kubectl /usr/local/bin/
-    # Configure AWS CLI with explicit region
-    - aws configure set default.region us-east-1
-    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    # Update kubeconfig with explicit region
+    - chmod +x kubectl 
+    - mv kubectl /usr/local/bin/
+    
+    # Configure AWS credentials and region
+    - aws configure set region us-east-1
+    - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
+    - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
+    - aws configure set output json
+    
+    # Verify AWS configuration
+    - aws sts get-caller-identity
+    
+    # Configure kubectl
     - aws eks --region us-east-1 update-kubeconfig --name ecommerce-cluster
+    
+    # Verify kubectl configuration
+    - kubectl get svc
 
 deploy_client:
   <<: *deploy_template
