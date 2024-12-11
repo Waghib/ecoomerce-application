@@ -31,11 +31,11 @@ variable "server_image" {
 variable "aws_access_key_id" {
   description = "AWS access key ID"
   type        = string
-  default     = "AKIA5WLTTFW5D3ZMLSN3"
+  default     = ""
 }
 
 variable "aws_secret_access_key" {
   description = "AWS secret access key"
   type        = string
-  default     = "sP6k3NQ3Q0qKN6Hk49+hWf7vzI0J7FzQF7xzMOYe"
+  default     = ""
 }
