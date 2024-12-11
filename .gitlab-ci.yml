@@ -3,6 +3,8 @@ stages:
   - lint
   - test
   - push
+  - deploy
+  
 
 # Use Docker image with Docker CLI pre-installed
 image: docker:20.10.16
@@ -141,6 +143,43 @@ push_images:
       - stuck_or_timeout_failure
   needs:
     - unit_tests
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# Add these new deployment jobs
+.deploy_template: &deploy_template
+  image: 
+    name: dtzar/helm-kubectl:latest
+  before_script:
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set region us-east-1
+    - aws eks update-kubeconfig --name ecommerce-cluster --region us-east-1
+
+deploy_client:
+  <<: *deploy_template
+  stage: deploy
+  script:
+    - helm upgrade --install ecommerce-client ./helm/client 
+      --set image.repository=$DOCKER_USERNAME/ecoommerce-application-client
+      --set image.tag=latest
+      --set service.type=LoadBalancer
+  needs:
+    - push_images
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+deploy_server:
+  <<: *deploy_template
+  stage: deploy
+  script:
+    - helm upgrade --install ecommerce-server ./helm/server 
+      --set image.repository=$DOCKER_USERNAME/ecoommerce-application-server
+      --set image.tag=latest
+  needs:
+    - push_images
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"

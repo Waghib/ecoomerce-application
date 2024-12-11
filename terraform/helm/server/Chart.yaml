@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ecommerce-server
+description: A Helm chart for ecommerce server application
+version: 0.1.0
+type: application

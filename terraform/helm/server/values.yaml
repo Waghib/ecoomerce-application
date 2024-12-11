@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: waghib/ecoommerce-application-server
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+mongodb:
+  uri: "mongodb://localhost:27017/ecommerce"
+
+jwt:
+  secret: "waghib"
