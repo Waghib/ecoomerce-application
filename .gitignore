@@ -52,3 +52,33 @@ aws/
 
 mern-app-0.1.0.tgz/
 awscli2.zip/
+
+# Large files
+*.zip
+awscliv2.zip
+
+# Common large file types
+*.iso
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.dmg
+*.gz
+*.bz2
+*.xz
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
