@@ -57,7 +57,6 @@ module "eks" {
     Terraform   = "true"
   }
 }
-
 # Deploy client application using Helm
 resource "helm_release" "client" {
   name       = "ecommerce-client"
