@@ -1,19 +1,18 @@
-variable "aws_region" {
-  description = "AWS region"
+variable "project_id" {
+  description = "GCP Project ID"
   type        = string
-  default     = "us-east-1"
+}
+
+variable "region" {
+  description = "GCP region"
+  type        = string
+  default     = "us-central1"
 }
 
 variable "cluster_name" {
   description = "Ecommerce cluster"
   type        = string
   default     = "ecommerce-cluster"
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block for VPC"
-  type        = string
-  default     = "10.0.0.0/16"
 }
 
 variable "client_image" {
@@ -26,16 +25,4 @@ variable "server_image" {
   description = "Docker image for server application"
   type        = string
   default     = "waghib/ecoommerce-application-server:latest"
-}
-
-variable "aws_access_key_id" {
-  description = "AWS access key ID"
-  type        = string
-  default     = ""
-}
-
-variable "aws_secret_access_key" {
-  description = "AWS secret access key"
-  type        = string
-  default     = ""
 }

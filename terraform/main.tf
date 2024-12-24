@@ -1,68 +1,54 @@
-data "kubernetes_service" "client" {
-  metadata {
-    name      = "ecommerce-client"
-    namespace = "default"
-  }
-  depends_on = [helm_release.client]
+# Create VPC
+resource "google_compute_network" "vpc" {
+  name                    = "ecommerce-vpc"
+  auto_create_subnetworks = false
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+# Create Subnet
+resource "google_compute_subnetwork" "subnet" {
+  name          = "ecommerce-subnet"
+  region        = var.region
+  network       = google_compute_network.vpc.name
+  ip_cidr_range = "10.0.0.0/16"
+}
 
-  name = "ecommerce-vpc"
-  cidr = var.vpc_cidr
+# Create GKE cluster
+resource "google_container_cluster" "primary" {
+  name     = var.cluster_name
+  location = var.region
 
-  azs             = ["${var.aws_region}a", "${var.aws_region}b"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count       = 1
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  network    = google_compute_network.vpc.name
+  subnetwork = google_compute_subnetwork.subnet.name
+}
 
-  enable_dns_hostnames = true
-  enable_dns_support   = true
+# Create Node Pool
+resource "google_container_node_pool" "primary_nodes" {
+  name       = "${var.cluster_name}-node-pool"
+  location   = var.region
+  cluster    = google_container_cluster.primary.name
+  node_count = 2
 
-  tags = {
-    Environment = "production"
-    Terraform   = "true"
+  node_config {
+    machine_type = "e2-medium"
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
   }
 }
 
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
-
-  cluster_name    = var.cluster_name
-  cluster_version = "1.27"
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-
-  cluster_endpoint_public_access = true
-
-  eks_managed_node_groups = {
-    general = {
-      desired_size = 2
-      min_size     = 1
-      max_size     = 3
-
-      instance_types = ["t3.medium"]
-      capacity_type  = "ON_DEMAND"
-    }
-  }
-
-  tags = {
-    Environment = "production"
-    Terraform   = "true"
-  }
-}
 # Deploy client application using Helm
 resource "helm_release" "client" {
   name       = "ecommerce-client"
   chart      = "./helm/client"
   namespace  = "default"
-  depends_on = [module.eks]
+  depends_on = [google_container_node_pool.primary_nodes]
 
   set {
     name  = "image.repository"
@@ -79,7 +65,7 @@ resource "helm_release" "server" {
   name       = "ecommerce-server"
   chart      = "./helm/server"
   namespace  = "default"
-  depends_on = [module.eks]
+  depends_on = [google_container_node_pool.primary_nodes]
 
   set {
     name  = "image.repository"
