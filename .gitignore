@@ -1,7 +1,7 @@
 node_modules
 configmap.yaml
 secrets.yaml
-
+creds/
 # Local .terraform directories
 **/.terraform/*
 

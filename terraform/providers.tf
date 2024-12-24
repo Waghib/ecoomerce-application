@@ -16,8 +16,9 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
+  credentials = file("creds/axial-autonomy-444811-d7-a54629d0ce10.json")
+  project     = var.project_id
+  region      = var.region
 }
 
 provider "kubernetes" {
