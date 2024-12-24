@@ -1,16 +1,16 @@
 output "cluster_endpoint" {
-  description = "Endpoint for EKS control plane"
-  value       = module.eks.cluster_endpoint
+  description = "Endpoint for GKE control plane"
+  value       = google_container_cluster.primary.endpoint
 }
 
 output "cluster_name" {
   description = "Kubernetes Cluster Name"
-  value       = module.eks.cluster_name
+  value       = google_container_cluster.primary.name
 }
 
 output "client_service_endpoint" {
   description = "The hostname of the client service load balancer"
-  value       = try(data.kubernetes_service.client_service.status[0].load_balancer[0].ingress[0].hostname, null)
+  value       = try(data.kubernetes_service.client_service.status[0].load_balancer[0].ingress[0].ip, null)
 }
 
 data "kubernetes_service" "client_service" {
