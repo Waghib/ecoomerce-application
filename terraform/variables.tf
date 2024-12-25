@@ -26,3 +26,15 @@ variable "server_image" {
   type        = string
   default     = "waghib/ecoommerce-application-server:latest"
 }
+
+variable "mongodb_uri" {
+  description = "MongoDB connection URI"
+  type        = string
+  sensitive   = true
+}
+
+variable "jwt_secret" {
+  description = "JWT secret key"
+  type        = string
+  default     = "waghib"
+}
