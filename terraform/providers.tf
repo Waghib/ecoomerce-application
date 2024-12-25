@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("creds/axial-autonomy-444811-d7-a54629d0ce10.json")
+  credentials = file("../creds/axial-autonomy-444811-d7-a54629d0ce10.json")
   project     = var.project_id
   region      = var.region
 }
@@ -24,7 +24,7 @@ provider "google" {
 provider "kubernetes" {
   host                   = "https://${google_container_cluster.primary.endpoint}"
   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-  token                 = data.google_client_config.default.access_token
+  token                  = data.google_client_config.default.access_token
 }
 
 provider "helm" {
