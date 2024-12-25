@@ -19,7 +19,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: REACT_APP_API_URL
               value: "http://ecommerce-server-server:3000" 

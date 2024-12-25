@@ -1,7 +1,7 @@
 node_modules
 configmap.yaml
 secrets.yaml
-
+creds/
 # Local .terraform directories
 **/.terraform/*
 
@@ -81,4 +81,4 @@ awscliv2.zip
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
+Thumbs.dbaws/dist/awscli/examples/greengrass/create-connector-definition-version.rst
