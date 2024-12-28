@@ -8,15 +8,15 @@ output "cluster_name" {
   value       = google_container_cluster.primary.name
 }
 
-output "client_service_endpoint" {
-  description = "The hostname of the client service load balancer"
-  value       = try(data.kubernetes_service.client_service.status[0].load_balancer[0].ingress[0].ip, null)
+output "nginx_ingress_ip" {
+  description = "External IP of the NGINX Ingress Controller"
+  value       = data.kubernetes_service.nginx_ingress.status[0].load_balancer[0].ingress[0].ip
 }
 
-data "kubernetes_service" "client_service" {
+data "kubernetes_service" "nginx_ingress" {
   metadata {
-    name      = "ecommerce-client"
-    namespace = "default"
+    name      = "nginx-ingress-ingress-nginx-controller"
+    namespace = "ingress-nginx"
   }
-  depends_on = [helm_release.client]
+  depends_on = [helm_release.nginx_ingress]
 }

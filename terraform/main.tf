@@ -48,19 +48,26 @@ resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-node-pool"
   location   = var.region
   cluster    = google_container_cluster.primary.name
-  node_count = 1
+  node_count = var.gke_num_nodes
 
   node_config {
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/compute"
+    ]
+
+    labels = {
+      env = var.project_id
+    }
+
     machine_type = "e2-medium"
     disk_size_gb = 50
     disk_type    = "pd-standard"
 
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform"
-    ]
-
-    workload_metadata_config {
-      mode = "GKE_METADATA"
+    metadata = {
+      disable-legacy-endpoints = "true"
     }
   }
 
@@ -82,76 +89,92 @@ resource "time_sleep" "wait_30_seconds" {
   create_duration = "30s"
 }
 
-# Deploy client application using Helm
-resource "helm_release" "client" {
-  name       = "ecommerce-client"
-  chart      = "./helm/client"
-  namespace  = "default"
-  depends_on = [time_sleep.wait_30_seconds]
+# Install NGINX Ingress Controller
+resource "helm_release" "nginx_ingress" {
+  name             = "nginx-ingress"
+  repository       = "https://kubernetes.github.io/ingress-nginx"
+  chart            = "ingress-nginx"
+  namespace        = "ingress-nginx"
+  create_namespace = true
+  timeout          = 600
 
   set {
-    name  = "image.repository"
-    value = split(":", var.client_image)[0]
-  }
-  set {
-    name  = "image.tag"
-    value = split(":", var.client_image)[1]
+    name  = "controller.service.type"
+    value = "LoadBalancer"
   }
 
-  timeout = 600 # 10 minutes timeout
-
-  # Add verification that chart exists
-  verify = false
+  depends_on = [
+    google_container_cluster.primary,
+    google_container_node_pool.primary_nodes,
+    time_sleep.wait_30_seconds
+  ]
 }
 
-# Deploy server application using Helm
-resource "helm_release" "server" {
-  name       = "ecommerce-server"
-  chart      = "./helm/server"
+# Deploy MongoDB
+resource "helm_release" "mongodb" {
+  name       = "mongodb"
+  repository = "https://charts.bitnami.com/bitnami"
+  chart      = "mongodb"
   namespace  = "default"
-  depends_on = [time_sleep.wait_30_seconds]
+  timeout    = 600
 
-  # Increase timeout to 20 minutes
-  timeout = 1200
+  set {
+    name  = "auth.enabled"
+    value = "false"
+  }
 
-  # Add debug flags
-  # debug    = true
-  wait     = true
+  depends_on = [
+    helm_release.nginx_ingress
+  ]
+}
+
+# Deploy Backend
+resource "helm_release" "backend" {
+  name      = "ecommerce-backend"
+  chart     = "./helm/server"
+  namespace = "default"
+  timeout   = 600
 
   set {
     name  = "image.repository"
     value = split(":", var.server_image)[0]
   }
+
   set {
     name  = "image.tag"
     value = split(":", var.server_image)[1]
   }
-  
+
   set {
     name  = "mongodb.uri"
-    value = var.mongodb_uri
+    value = "mongodb://mongodb-mongodb:27017/ecommerce"
+  }
+
+  depends_on = [
+    helm_release.mongodb,
+    helm_release.nginx_ingress
+  ]
+}
+
+# Deploy Frontend
+resource "helm_release" "frontend" {
+  name      = "ecommerce-frontend"
+  chart     = "./helm/client"
+  namespace = "default"
+  timeout   = 600
+
+  set {
+    name  = "image.repository"
+    value = split(":", var.client_image)[0]
   }
 
   set {
-    name  = "jwt.secret"
-    value = var.jwt_secret
+    name  = "image.tag"
+    value = split(":", var.client_image)[1]
   }
 
-  # Add resource limits
-  set {
-    name  = "resources.requests.memory"
-    value = "256Mi"
-  }
-  set {
-    name  = "resources.requests.cpu"
-    value = "100m"
-  }
-  set {
-    name  = "resources.limits.memory"
-    value = "512Mi"
-  }
-  set {
-    name  = "resources.limits.cpu"
-    value = "500m"
-  }
+  depends_on = [
+    helm_release.backend,
+    helm_release.nginx_ingress
+  ]
 }
