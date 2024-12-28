@@ -7,7 +7,20 @@ image:
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 5000
+  name: ecommerce-server
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+  hosts:
+    - host: api.ecommerce.local
+      paths:
+        - path: /
+          pathType: Prefix
 
 resources:
   limits:
@@ -17,8 +30,10 @@ resources:
     cpu: 100m
     memory: 256Mi
 
-mongodb:
-  uri: ${var.mongodb_uri}
-
-jwt:
-  secret: "waghib"
+env:
+  - name: PORT
+    value: "5000"
+  - name: MONGODB_URI
+    value: "mongodb://mongodb:27017/ecommerce"
+  - name: JWT_SECRET
+    value: "waghib"
