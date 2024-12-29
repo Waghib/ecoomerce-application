@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 const products = [
   {
     name: "iPhone 14 Pro",
@@ -82,6 +84,12 @@ async function initializeDB() {
         categories,
       }),
     });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.log('Response:', response.status, text);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
     console.log('Database initialized:', data);

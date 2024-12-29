@@ -33,7 +33,12 @@ resources:
 env:
   - name: PORT
     value: "5000"
-  - name: MONGODB_URI
-    value: "mongodb://mongodb:27017/ecommerce"
+  - name: MONGO_URI
+    valueFrom:
+      secretKeyRef:
+        name: mongodb-secret
+        key: mongodb-uri
   - name: JWT_SECRET
     value: "waghib"
+  - name: BASE_API_URL
+    value: "api"
