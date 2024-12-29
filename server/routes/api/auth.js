@@ -12,7 +12,7 @@ const User = require('../../models/user');
 const mailchimp = require('../../services/mailchimp');
 const mailgun = require('../../services/mailgun');
 const keys = require('../../config/keys');
-const { EMAIL_PROVIDER, JWT_COOKIE } = require('../../constants');
+const { EMAIL_PROVIDER, JWT_COOKIE, ROLES } = require('../../constants');
 
 const { secret, tokenLife } = keys.jwt;
 
@@ -82,7 +82,7 @@ router.post('/login', async (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { email, firstName, lastName, password, isSubscribed } = req.body;
+    const { email, firstName, lastName, password, isSubscribed, role } = req.body;
 
     if (!email) {
       return res
@@ -115,18 +115,36 @@ router.post('/register', async (req, res) => {
       }
     }
 
+    // Log role information
+    console.log('Role from request:', role);
+    console.log('Available roles:', ROLES);
+
+    // Validate role
+    const requestedRole = role || ROLES.Member;
+    console.log('Requested role:', requestedRole);
+
+    if (!Object.values(ROLES).includes(requestedRole)) {
+      console.log('Invalid role. Available roles:', Object.values(ROLES));
+      return res.status(400).json({ error: 'Invalid role specified.' });
+    }
+
     const user = new User({
       email,
       password,
       firstName,
-      lastName
+      lastName,
+      role: requestedRole
     });
+
+    console.log('User object before save:', user);
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(user.password, salt);
 
     user.password = hash;
     const registeredUser = await user.save();
+
+    console.log('Registered user:', registeredUser);
 
     const payload = {
       id: registeredUser.id
@@ -154,6 +172,7 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(400).json({
       error: 'Your request could not be processed. Please try again.'
     });

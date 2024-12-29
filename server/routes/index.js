@@ -6,7 +6,7 @@ const { apiURL } = keys.app;
 
 const api = `/${apiURL}`;
 
-// api routes
+// Register routes
 router.use(api, apiRoutes);
 router.use(api, (req, res) => res.status(404).json('No API route found'));
 
