@@ -24,6 +24,13 @@ app.use(cors());
 
 setupDB();
 require('./config/passport')(app);
+
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 app.use(routes);
 
 const server = app.listen(port, () => {
@@ -32,6 +39,7 @@ const server = app.listen(port, () => {
       `Listening on port ${port}. Visit http://localhost:${port}/ in your browser.`
     )}`
   );
+  console.log('API URL:', keys.app.apiURL);
 });
 
 socket(server);
