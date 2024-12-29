@@ -20,7 +20,7 @@ import { setAuth } from '../Authentication/actions';
 import setToken from '../../utils/token';
 import handleError from '../../utils/error';
 import { allFieldsValidation } from '../../utils/validation';
-import { API_URL } from '../../constants';
+import { API_URL } from '../../utils/constants';
 
 export const signupChange = (name, value) => {
   let formData = {};
