@@ -26,12 +26,6 @@ resource "google_container_cluster" "primary" {
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
 
-  # Add disk configuration to use standard PD
-  node_config {
-    disk_type    = "pd-standard"  # Use standard persistent disk
-    disk_size_gb = 50
-  }
-
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
@@ -45,10 +39,10 @@ resource "google_container_cluster" "primary" {
 
 # Create Node Pool
 resource "google_container_node_pool" "primary_nodes" {
-  name       = "${var.cluster_name}-node-pool"
-  location   = var.region
-  cluster    = google_container_cluster.primary.name
-  node_count = var.gke_num_nodes
+  name               = "${var.cluster_name}-node-pool"
+  location           = var.region
+  cluster            = google_container_cluster.primary.name
+  initial_node_count = var.gke_num_nodes
 
   node_config {
     oauth_scopes = [
@@ -69,6 +63,8 @@ resource "google_container_node_pool" "primary_nodes" {
     metadata = {
       disable-legacy-endpoints = "true"
     }
+
+    tags = ["ecommerce-node"]
   }
 
   management {
@@ -80,6 +76,10 @@ resource "google_container_node_pool" "primary_nodes" {
     create = "30m"
     update = "30m"
     delete = "30m"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -97,6 +97,7 @@ resource "helm_release" "nginx_ingress" {
   namespace        = "ingress-nginx"
   create_namespace = true
   timeout          = 600
+  version          = "4.11.3"
 
   set {
     name  = "controller.service.type"
@@ -137,12 +138,12 @@ resource "helm_release" "backend" {
 
   set {
     name  = "image.repository"
-    value = split(":", var.server_image)[0]
+    value = "waghib/ecoomerce-application-server"
   }
 
   set {
     name  = "image.tag"
-    value = split(":", var.server_image)[1]
+    value = "latest"
   }
 
   set {
@@ -165,16 +166,31 @@ resource "helm_release" "frontend" {
 
   set {
     name  = "image.repository"
-    value = split(":", var.client_image)[0]
+    value = "waghib/ecoomerce-application-client"
   }
 
   set {
     name  = "image.tag"
-    value = split(":", var.client_image)[1]
+    value = "latest"
   }
 
   depends_on = [
     helm_release.backend,
     helm_release.nginx_ingress
   ]
+}
+
+# Get Nginx Ingress IP
+data "kubernetes_service" "nginx_ingress" {
+  metadata {
+    name = "nginx-ingress-ingress-nginx-controller"
+    namespace = "ingress-nginx"
+  }
+  depends_on = [
+    helm_release.nginx_ingress
+  ]
+}
+
+output "nginx_ingress_ip" {
+  value = data.kubernetes_service.nginx_ingress.status.0.load_balancer.0.ingress.0.ip
 }

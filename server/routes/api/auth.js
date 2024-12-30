@@ -17,6 +17,7 @@ const { EMAIL_PROVIDER, JWT_COOKIE, ROLES } = require('../../constants');
 const { secret, tokenLife } = keys.jwt;
 
 router.post('/login', async (req, res) => {
+  console.log('Received login request:', req.body);
   try {
     const { email, password } = req.body;
 
@@ -31,6 +32,7 @@ router.post('/login', async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    console.log('Found user:', user ? user.email : 'not found');
     if (!user) {
       return res
         .status(400)
@@ -44,6 +46,7 @@ router.post('/login', async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
 
     if (!isMatch) {
       return res.status(400).json({
