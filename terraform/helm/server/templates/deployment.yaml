@@ -19,16 +19,23 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 5000
+            - containerPort: 3000
           env:
-            {{- range .Values.env }}
-            - name: {{ .name }}
-              {{- if .value }}
-              value: {{ .value | quote }}
-              {{- else if .valueFrom }}
+            - name: PORT
+              value: "3000"
+            - name: BASE_API_URL
+              value: "api"
+            - name: CLIENT_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: MONGO_URI
               valueFrom:
-                {{- toYaml .valueFrom | nindent 16 }}
-              {{- end }}
-            {{- end }}
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongodb-uri
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

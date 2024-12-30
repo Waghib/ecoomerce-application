@@ -2,7 +2,6 @@ node_modules
 configmap.yaml
 secrets.yaml
 creds/
-mongodb-secret.yaml
 # Local .terraform directories
 **/.terraform/*
 
