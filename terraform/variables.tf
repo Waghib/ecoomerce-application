@@ -38,3 +38,9 @@ variable "jwt_secret" {
   type        = string
   default     = "waghib"
 }
+
+variable "gke_num_nodes" {
+  description = "Number of GKE nodes"
+  type        = number
+  default     = 1
+}

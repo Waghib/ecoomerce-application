@@ -1,9 +1,6 @@
 const router = require('express').Router();
 
 const authRoutes = require('./auth');
-const userRoutes = require('./user');
-const addressRoutes = require('./address');
-const newsletterRoutes = require('./newsletter');
 const productRoutes = require('./product');
 const categoryRoutes = require('./category');
 const brandRoutes = require('./brand');
@@ -12,19 +9,14 @@ const merchantRoutes = require('./merchant');
 const cartRoutes = require('./cart');
 const orderRoutes = require('./order');
 const reviewRoutes = require('./review');
+const userRoutes = require('./user');
+const addressRoutes = require('./address');
 const wishlistRoutes = require('./wishlist');
+const newsletterRoutes = require('./newsletter');
+const adminRoutes = require('./admin');
 
 // auth routes
 router.use('/auth', authRoutes);
-
-// user routes
-router.use('/user', userRoutes);
-
-// address routes
-router.use('/address', addressRoutes);
-
-// newsletter routes
-router.use('/newsletter', newsletterRoutes);
 
 // product routes
 router.use('/product', productRoutes);
@@ -47,10 +39,22 @@ router.use('/cart', cartRoutes);
 // order routes
 router.use('/order', orderRoutes);
 
-// Review routes
+// review routes
 router.use('/review', reviewRoutes);
 
-// Wishlist routes
+// user routes
+router.use('/user', userRoutes);
+
+// address routes
+router.use('/address', addressRoutes);
+
+// wishlist routes
 router.use('/wishlist', wishlistRoutes);
+
+// newsletter routes
+router.use('/newsletter', newsletterRoutes);
+
+// admin routes
+router.use('/admin', adminRoutes);
 
 module.exports = router;

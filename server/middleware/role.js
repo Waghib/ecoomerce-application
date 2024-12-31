@@ -1,3 +1,15 @@
+const checkRole = role => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  if (req.user.role !== role) {
+    return res.status(403).send('You are not allowed to make this request.');
+  }
+
+  return next();
+};
+
 const check =
   (...roles) =>
   (req, res, next) => {
@@ -13,5 +25,4 @@ const check =
     return next();
   };
 
-const role = { check };
-module.exports = role;
+module.exports = { checkRole, check };

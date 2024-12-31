@@ -25,10 +25,10 @@ FROM nginx:alpine
 # Copy the build artifacts from the build stage
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
-# NGINX default configuration file
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy the NGINX config template
+COPY nginx.conf.template /etc/nginx/nginx.conf
 
-# Expose port 8080
-EXPOSE 8080
+# Expose port 80
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]

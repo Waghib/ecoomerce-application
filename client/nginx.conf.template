@@ -1,0 +1,21 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    server {
+        listen 80;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+            sub_filter 'http://localhost:3000/api' 'http://$host/api';
+            sub_filter_once off;
+            sub_filter_types *;
+        }
+    }
+}

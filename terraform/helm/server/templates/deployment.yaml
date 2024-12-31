@@ -21,15 +21,21 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: MONGODB_URI
+            - name: PORT
+              value: "3000"
+            - name: BASE_API_URL
+              value: "api"
+            - name: CLIENT_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
                   name: mongodb-secret
-                  key: uri
+                  key: mongodb-uri
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: jwt-secret
-                  key: secret
+                  key: jwt-secret
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
