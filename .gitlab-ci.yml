@@ -147,85 +147,65 @@ push_images:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-# Add these new deployment jobs
-.deploy_template: &deploy_template
-  image: 
-    name: amazon/aws-cli:latest
+# GCP deployment configuration
+.deploy_gcp: &deploy_gcp
+  image: google/cloud-sdk:latest
   before_script:
-    # Install required packages
-    - yum install -y curl
+    # Install kubectl and helm
+    - apt-get update && apt-get install -y curl
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
     
-    # Install Helm
-    - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-    - chmod 700 get_helm.sh
-    - ./get_helm.sh
+    # Setup GCP authentication
+    - echo $GCP_SERVICE_KEY | base64 -d > /tmp/gcp-service-key.json
+    - gcloud auth activate-service-account --key-file /tmp/gcp-service-key.json
+    - gcloud config set project $GCP_PROJECT_ID
+    - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GCP_ZONE --project $GCP_PROJECT_ID
     
-    # Install kubectl
-    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - chmod +x kubectl 
-    - mv kubectl /usr/local/bin/
-    
-    # Configure AWS credentials and region
-    - aws configure set region us-east-1
-    - aws configure set aws_access_key_id "${AWS_ACCESS_KEY_ID}"
-    - aws configure set aws_secret_access_key "${AWS_SECRET_ACCESS_KEY}"
-    - aws configure set output json
-    
-    # Verify AWS configuration
-    - aws sts get-caller-identity
-    
-    # Configure kubectl
-    - aws eks --region us-east-1 update-kubeconfig --name ecommerce-cluster
-    
-    # Verify kubectl configuration
-    - kubectl get svc
+    # Verify connection
+    - kubectl get nodes
 
+# Deploy client application
 deploy_client:
-  <<: *deploy_template
+  <<: *deploy_gcp
   stage: deploy
   script:
-    # Debug information
-    - pwd
-    - ls -la
-    # Install git to clone helm charts if needed
-    - yum install -y git
-    # Deploy using helm
-    - >
-      helm upgrade --install ecommerce-client ./helm/client 
-      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-client
-      --set image.tag=latest
-      --set service.type=LoadBalancer
-      --namespace default
-      --create-namespace
+    - helm upgrade --install ecommerce-client ./helm/client \
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-client \
+      --set image.tag=latest \
+      --set service.type=LoadBalancer \
+      --namespace default \
+      --create-namespace \
       --wait
-  needs:
-    - push_images
+  environment:
+    name: production
+    url: https://$DOMAIN
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  needs:
+    - build_client
+    - push_images
 
+# Deploy server application
 deploy_server:
-  <<: *deploy_template
+  <<: *deploy_gcp
   stage: deploy
   script:
-    # Debug information
-    - pwd
-    - ls -la
-    # Install git to clone helm charts if needed
-    - yum install -y git
-    # Deploy using helm
-    - >
-      helm upgrade --install ecommerce-server ./helm/server 
-      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-server
-      --set image.tag=latest
-      --namespace default
-      --create-namespace
+    - helm upgrade --install ecommerce-server ./helm/server \
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-server \
+      --set image.tag=latest \
+      --set service.type=ClusterIP \
+      --namespace default \
+      --create-namespace \
       --wait
-  needs:
-    - push_images
+  environment:
+    name: production
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  needs:
+    - build_server
+    - push_images
 
 default:
   timeout: 1h
