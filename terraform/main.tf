@@ -138,7 +138,7 @@ resource "helm_release" "backend" {
 
   set {
     name  = "image.repository"
-    value = "waghib/ecoomerce-application-server"
+    value = "waghib/ecoommerce-application-server"
   }
 
   set {
@@ -166,7 +166,7 @@ resource "helm_release" "frontend" {
 
   set {
     name  = "image.repository"
-    value = "waghib/ecoomerce-application-client"
+    value = "waghib/ecoommerce-application-client"
   }
 
   set {

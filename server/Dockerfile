@@ -13,8 +13,11 @@ RUN npm install
 # Copy the rest of the server code
 COPY . .
 
-# Expose port 3000 for the server
-EXPOSE 3000
+# Set the port environment variable
+ENV PORT=5000
+
+# Expose port 5000 for the server
+EXPOSE 5000
 
 # Default command to start the application
 CMD ["npm", "start"]

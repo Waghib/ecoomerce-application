@@ -1,0 +1,198 @@
+prometheus:
+  server:
+    persistentVolume:
+      enabled: false
+    resources:
+      limits:
+        cpu: 150m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+    service:
+      type: ClusterIP
+    alertmanager:
+      enabled: true
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['job']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 12h
+          receiver: 'email-notifications'
+        receivers:
+          - name: 'email-notifications'
+            email_configs:
+              - to: 'your-email@example.com'
+                from: 'prometheus@your-domain.com'
+                smarthost: 'smtp.gmail.com:587'
+                auth_username: 'your-email@gmail.com'
+                auth_password: 'your-app-specific-password'
+    rules:
+      groups:
+        - name: ecommerce_rules
+          rules:
+            - record: job:http_requests_total:rate5m
+              expr: rate(http_requests_total[5m])
+            - record: job:http_request_duration_seconds:p95
+              expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+grafana:
+  adminPassword: admin  # Change this in production
+  persistence:
+    enabled: false
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  service:
+    type: LoadBalancer
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://{{ .Release.Name }}-prometheus-server
+          access: proxy
+          isDefault: true
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+  dashboards:
+    default:
+      node-exporter:
+        gnetId: 1860
+        revision: 29
+        datasource: Prometheus
+      kubernetes-cluster:
+        gnetId: 315
+        revision: 3
+        datasource: Prometheus
+      mongodb:
+        gnetId: 2583
+        revision: 2
+        datasource: Prometheus
+      ecommerce:
+        json: |
+          {
+            "annotations": {
+              "list": []
+            },
+            "editable": true,
+            "fiscalYearStartMonth": 0,
+            "graphTooltip": 0,
+            "links": [],
+            "liveNow": false,
+            "panels": [
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "fieldConfig": {
+                  "defaults": {
+                    "color": {
+                      "mode": "palette-classic"
+                    },
+                    "custom": {
+                      "axisCenteredZero": false,
+                      "axisColorMode": "text",
+                      "axisLabel": "",
+                      "axisPlacement": "auto",
+                      "barAlignment": 0,
+                      "drawStyle": "line",
+                      "fillOpacity": 0,
+                      "gradientMode": "none",
+                      "hideFrom": {
+                        "legend": false,
+                        "tooltip": false,
+                        "viz": false
+                      },
+                      "lineInterpolation": "linear",
+                      "lineWidth": 1,
+                      "pointSize": 5,
+                      "scaleDistribution": {
+                        "type": "linear"
+                      },
+                      "showPoints": "auto",
+                      "spanNulls": false,
+                      "stacking": {
+                        "group": "A",
+                        "mode": "none"
+                      },
+                      "thresholdsStyle": {
+                        "mode": "off"
+                      }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "red",
+                          "value": 80
+                        }
+                      ]
+                    }
+                  },
+                  "overrides": []
+                },
+                "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 0
+                },
+                "id": 1,
+                "options": {
+                  "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                  },
+                  "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                  }
+                },
+                "title": "Request Rate",
+                "type": "timeseries"
+              }
+            ],
+            "refresh": "5s",
+            "schemaVersion": 38,
+            "style": "dark",
+            "tags": [],
+            "templating": {
+              "list": []
+            },
+            "time": {
+              "from": "now-6h",
+              "to": "now"
+            },
+            "timepicker": {},
+            "timezone": "",
+            "title": "E-commerce Metrics",
+            "version": 0,
+            "weekStart": ""
+          }

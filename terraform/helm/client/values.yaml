@@ -8,6 +8,59 @@ image:
 service:
   type: ClusterIP
   port: 80
+  targetPort: 80
+  containerPort: 80
+  name: ecommerce-client-client
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  hosts:
+    - host: ""
+      paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: ecommerce-client-client
+              port:
+                number: 80
+
+env:
+  - name: REACT_APP_API_URL
+    value: "/api"
+
+nginxConfig: |
+  server {
+      listen 80;
+      server_name localhost;
+      root /usr/share/nginx/html;
+      index index.html;
+
+      # Add proper MIME types
+      include /etc/nginx/mime.types;
+      types {
+          application/javascript js;
+          text/css css;
+      }
+
+      location / {
+          try_files $uri $uri/ /index.html;
+          add_header Cache-Control "no-store, no-cache, must-revalidate";
+      }
+
+      location ~* \.(js|css|png|jpg|jpeg|gif|ico|json)$ {
+          expires -1;
+          add_header Cache-Control "no-store, no-cache, must-revalidate";
+      }
+  }
 
 resources:
   limits:
@@ -16,19 +69,3 @@ resources:
   requests:
     cpu: 100m
     memory: 256Mi
-
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-  hosts:
-    - host: ecommerce.local
-      paths:
-        - path: /
-          pathType: Prefix
-
-env:
-  - name: REACT_APP_API_URL
-    value: "http://ecommerce-server-server:5000"

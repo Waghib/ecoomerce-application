@@ -19,7 +19,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
           env:
             {{- range .Values.env }}
             - name: {{ .name }}

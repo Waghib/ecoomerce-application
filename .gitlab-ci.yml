@@ -4,6 +4,7 @@ stages:
   - test
   - push
   - deploy
+  - monitoring
   
 
 # Use Docker image with Docker CLI pre-installed
@@ -169,20 +170,19 @@ deploy_client:
   <<: *deploy_gcp
   stage: deploy
   script:
-    - helm upgrade --install ecommerce-client ./helm/client \
-      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-client \
-      --set image.tag=latest \
-      --set service.type=LoadBalancer \
-      --namespace default \
-      --create-namespace \
+    - cd terraform/helm/client && helm dependency build && cd ../../..
+    - helm upgrade --install ecommerce-client ./terraform/helm/client
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-client
+      --set image.tag=latest
+      --set service.type=LoadBalancer
+      --namespace default
+      --create-namespace
       --wait
   environment:
     name: production
-    url: https://$DOMAIN
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
-  needs:
+  only:
+    - main
+  dependencies:
     - build_client
     - push_images
 
@@ -191,21 +191,40 @@ deploy_server:
   <<: *deploy_gcp
   stage: deploy
   script:
-    - helm upgrade --install ecommerce-server ./helm/server \
-      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-server \
-      --set image.tag=latest \
-      --set service.type=ClusterIP \
-      --namespace default \
-      --create-namespace \
+    - cd terraform/helm/server && helm dependency build && cd ../../..
+    - helm upgrade --install ecommerce-server ./terraform/helm/server
+      --set image.repository=${DOCKER_USERNAME}/ecoommerce-application-server
+      --set image.tag=latest
+      --set service.type=ClusterIP
+      --namespace default
+      --create-namespace
       --wait
   environment:
     name: production
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: manual
-  needs:
+  only:
+    - main
+  dependencies:
     - build_server
     - push_images
+
+# Add monitoring deployment stage
+deploy_monitoring:
+  stage: monitoring
+  image: alpine/helm:3.12.3
+  script:
+    - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    - helm repo add grafana https://grafana.github.io/helm-charts
+    - helm repo update
+    - cd terraform/helm/monitoring && helm dependency build && cd ../../..
+    - helm upgrade --install monitoring ./terraform/helm/monitoring
+      --namespace monitoring
+      --create-namespace
+      --wait
+      --timeout 10m
+  environment:
+    name: production
+  only:
+    - main
 
 default:
   timeout: 1h
