@@ -18,7 +18,8 @@ const config = {
   output: {
     path: path.join(CURRENT_WORKING_DIR, '/dist'),
     filename: 'js/[name].[hash].js',
-    publicPath: '/'
+    publicPath: './',
+    chunkFilename: 'js/[name].[chunkhash].js'
   },
   module: {
     rules: [
@@ -57,7 +58,7 @@ const config = {
             loader: 'file-loader',
             options: {
               outputPath: 'images',
-              publicPath: '../images',
+              publicPath: 'images',
               name: '[name].[hash].[ext]'
             }
           }
@@ -70,7 +71,7 @@ const config = {
             loader: 'file-loader',
             options: {
               outputPath: 'fonts',
-              publicPath: '../fonts',
+              publicPath: 'fonts',
               name: '[name].[hash].[ext]'
             }
           }
