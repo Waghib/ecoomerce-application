@@ -11,11 +11,32 @@ http {
         root /usr/share/nginx/html;
         index index.html;
 
+        # Enable gzip compression
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
         location / {
             try_files $uri $uri/ /index.html;
-            sub_filter 'http://localhost:3000/api' 'http://$host/api';
-            sub_filter_once off;
-            sub_filter_types *;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Access-Control-Allow-Origin *;
+            expires 0;
+        }
+
+        location /static {
+            alias /usr/share/nginx/html/static;
+            expires 1y;
+            add_header Cache-Control "public";
+            access_log off;
+        }
+
+        location /api {
+            proxy_pass http://ecommerce-server-server:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            add_header Access-Control-Allow-Origin *;
         }
     }
 }

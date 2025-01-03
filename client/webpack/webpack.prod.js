@@ -12,6 +12,7 @@ const common = require('./webpack.common');
 
 const CURRENT_WORKING_DIR = process.cwd();
 const NODE_ENV = process.env.NODE_ENV;
+const API_URL = process.env.API_URL;
 
 const config = {
   mode: 'production',
@@ -22,6 +23,16 @@ const config = {
   },
   module: {
     rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
+        }
+      },
       {
         test: /\.(scss|sass|css)$/,
         use: [
@@ -115,7 +126,7 @@ const config = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(NODE_ENV),
-        API_URL: JSON.stringify('http://34.58.79.83/api')
+        API_URL: JSON.stringify(API_URL)
       }
     }),
     new HtmlWebpackPlugin({
@@ -149,7 +160,7 @@ const config = {
         {
           src: path.resolve('public/images/pwa.png'),
           destination: 'images',
-          sizes: [72, 96, 128, 144, 192, 384, 512]
+          sizes: [72, 96, 128, 144, 152, 167, 180, 192, 384, 512]
         },
         {
           src: path.resolve('public/images/pwa.png'),

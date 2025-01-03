@@ -4,6 +4,14 @@ FROM node:16.20.2-buster-slim as build
 # Set working directory
 WORKDIR /usr/src/app
 
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    python \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package.json and package-lock.json
 COPY package*.json ./
 

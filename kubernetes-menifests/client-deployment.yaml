@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: waghib/ecommerce-client:latest
+          image: waghib/ecoomerce-application-client:latest
           ports:
             - containerPort: 8080
           env:

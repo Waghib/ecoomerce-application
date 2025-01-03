@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: waghib/ecoommerce-application-client
+  repository: waghib/ecoomerce-application-client
   tag: latest
   pullPolicy: Always
 
@@ -17,6 +17,12 @@ resources:
     cpu: 100m
     memory: 256Mi
 
+env:
+  - name: API_URL
+    value: "http://34.58.79.83/api"
+  - name: REACT_APP_API_URL
+    value: "http://34.58.79.83/api"
+
 ingress:
   enabled: true
   className: nginx
@@ -28,7 +34,3 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-
-env:
-  - name: REACT_APP_API_URL
-    value: "http://ecommerce-server-server:5000"
