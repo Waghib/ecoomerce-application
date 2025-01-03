@@ -1,6 +1,6 @@
 node_modules
-# configmap.yaml
-# secrets.yaml
+configmap.yaml
+secrets.yaml
 creds/
 # Local .terraform directories
 **/.terraform/*
@@ -43,9 +43,9 @@ terraform.tfstate.d/
 .terragrunt-cache/
 
 # Local terraform directories and files
-# .terraform/
-# terraform.tfstate.d/
-# .terragrunt-cache/
+.terraform/
+terraform.tfstate.d/
+.terragrunt-cache/
 
 # aws folder
 aws/
