@@ -15,27 +15,19 @@ spec:
         app: ecommerce-server
     spec:
       containers:
-        - name: server
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
+              protocol: TCP
           env:
-            - name: PORT
-              value: "3000"
-            - name: BASE_API_URL
-              value: "api"
-            - name: CLIENT_URL
-              value: "https://{{ .Values.ingress.host }}"
             - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongodb-uri
+              value: "mongodb://mongodb:27017/mern-ecommerce"
             - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: jwt-secret
-                  key: jwt-secret
+              value: "your-secret-key"
+            - name: API_URL
+              value: "api"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

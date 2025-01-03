@@ -1,84 +1,84 @@
-node_modules
-configmap.yaml
-secrets.yaml
-creds/
-# Local .terraform directories
-**/.terraform/*
+# node_modules
+# # configmap.yaml
+# # secrets.yaml
+# creds/
+# # Local .terraform directories
+# **/.terraform/*
 
-# Terraform State Files
-*.tfstate
-*.tfstate.backup
+# # Terraform State Files
+# *.tfstate
+# *.tfstate.backup
 
-# Crash Log Files
-crash.log
+# # Crash Log Files
+# crash.log
 
-# Terraform Variables File
-terraform.tfvars
-*.tfvars
-*.tfvars.json
+# # Terraform Variables File
+# terraform.tfvars
+# *.tfvars
+# *.tfvars.json
 
-# Override Files
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# # Override Files
+# override.tf
+# override.tf.json
+# *_override.tf
+# *_override.tf.json
 
-# Sensitive Outputs
-*.pem
-*.key
-terraform/.terraform/providers/
+# # Sensitive Outputs
+# *.pem
+# *.key
+# terraform/.terraform/providers/
 
-# Terraform provider binaries
-**/.terraform/providers/**
+# # Terraform provider binaries
+# **/.terraform/providers/**
 
-# Terraform large files
-.terraform.lock.hcl
-**/.terraform.tfstate.lock.info
-.terraform/
-terraform/.terraform/
+# # Terraform large files
+# .terraform.lock.hcl
+# **/.terraform.tfstate.lock.info
+# .terraform/
+# terraform/.terraform/
 
-# Local terraform directories and files
-.terraform/
-terraform.tfstate.d/
-.terragrunt-cache/
+# # Local terraform directories and files
+# .terraform/
+# terraform.tfstate.d/
+# .terragrunt-cache/
 
-# Local terraform directories and files
-.terraform/
-terraform.tfstate.d/
-.terragrunt-cache/
+# # Local terraform directories and files
+# # .terraform/
+# # terraform.tfstate.d/
+# # .terragrunt-cache/
 
-# aws folder
-aws/
+# # aws folder
+# aws/
 
-mern-app-0.1.0.tgz/
-awscli2.zip/
+# mern-app-0.1.0.tgz/
+# awscli2.zip/
 
-# Large files
-*.zip
-awscliv2.zip
+# # Large files
+# *.zip
+# awscliv2.zip
 
-# Common large file types
-*.iso
-*.tar
-*.tar.gz
-*.tgz
-*.rar
-*.7z
-*.dmg
-*.gz
-*.bz2
-*.xz
+# # Common large file types
+# *.iso
+# *.tar
+# *.tar.gz
+# *.tgz
+# *.rar
+# *.7z
+# *.dmg
+# *.gz
+# *.bz2
+# *.xz
 
-# Logs and databases
-*.log
-*.sql
-*.sqlite
+# # Logs and databases
+# *.log
+# *.sql
+# *.sqlite
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.dbaws/dist/awscli/examples/greengrass/create-connector-definition-version.rst
+# # OS generated files
+# .DS_Store
+# .DS_Store?
+# ._*
+# .Spotlight-V100
+# .Trashes
+# ehthumbs.db
+# Thumbs.dbaws/dist/awscli/examples/greengrass/create-connector-definition-version.rst

@@ -5,10 +5,11 @@ metadata:
   labels:
     app: ecommerce-server
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 5000
+    - port: 3000
+      targetPort: 3000
       protocol: TCP
+      name: http
   selector:
     app: ecommerce-server

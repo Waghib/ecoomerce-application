@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "axial-autonomy-444811-d7",
+  "private_key_id": "a54629d0ce10981997febdeebc134a9cde5dfcfb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDGraU3YIyAbQ3H\ns/FzV7C3y0zajPwEoonpAWVR8KTzh2HcaZiLu1ajEnqGc4GGG64k8jRKlHSUZeS+\nfE/C5DCAnc5w3NExoopOWPHaaG105kzRNH5VcKvu7YLrYlhflqvMGfx+9r6+BMsQ\nBbO45U/VBnIvQ3F8svtOGlOtTOLWh1q776jTD213ihiCxaAP9z9PLEoDKAfnm61x\nsVZ4Ilse9c0LZBg0d0WYNkFp+C1LSvYTk5+/122SIQYDdcF5Zg0mKziyIoHu/qcT\nEzWOcEF5UckZ1zXBYcQkYGyd235P8jjBpVySJURT3E2pEfqzEku+0lllTyeDTzDp\nvWeTIML3AgMBAAECggEAEDNYpYtZ6Z764K3rolwkLNiHC8szQa1/UWCrwmK9EJ6Z\nfD+gEMTV67Y2B4CjryvSp3CYkvxIBVHJtT6twlaZHePAUbOv2zxFyt212vlo839U\nBDsjkhP98R2s70S1sBW5LItx62hzZUs+w6+zWABa4iQEa5Y0StbNZzD+YcNDO/ro\nmdfpIC8ZgGiPmXIYbBrnlLsUUCA+AkJE29A//keJbxMvHKn6ukm7xCAu3yIkVzhs\na1xvJmBPpYdXvtZBrCHYEnOU6ivKihGKZ6kivUIY39KsHco0WT4uKjxDDHm8NdRp\nSZ7o9V3fDq71g8EuTIaYwgLBedJEoyn3wEllpnZkAQKBgQD3wcJLx64N0Z5FxrVd\n/hQJC6oo4CIpdADbmI5L3pKY6F4XDuZWSsbjUExVP2AEL8QTIcQ/m8Hma4ziJWzv\nUi3jxLLFEXM5w/0PAluLseH9q2ewnzkvaYiUzCqZzcW55Ruv4+UMb1mNUZlunLcJ\nxxQjSf6C/v6XXAGHwqCwTDmrUQKBgQDNSd2CNqzKNesObEUOCUwKl7E3mBL8/Y43\nHRuT3i7QdZrdFVlhIjGgd6D27f6zY7rU94SGVGW37MJCOt9oRC06zcAljkFzk278\nCB3fNTv1iGEXsLvQhntSMuubNWmpnKDsmejP7llMooxAQnQi2iEpk7N6lmw60MJo\nRz+wYq9nxwKBgB+rI6O+FVBs39c5bAtko7j4RbrN03ALBOUM3ftyqrhi00wNOoID\nMuLxa6Bl5mcCmAR+B3C9/w3t52css3zvuy/m/5bTATB8DceyXHNBvIpJM4rO/2dB\nDRU/954LQF/fmidkcO2i+gZnTL5nx7m3Oaq9FYw2/eHo/8UTqqh+RczRAoGBAJye\nAOeJ7PNshUMAqQJXZ3MhXaurUrk+fFRh2ZtLQ+33+0k2M3Vej/v7qIsa8VlM+cnm\neG2/T8ctUtsSbUTv1o3pUPGWASs6zM5tJtUWmQLupBxd0jv5jXYdsRA9hLpI66D2\nnt6b2fcUf+m6iT3Zqrk8nQ4mWrXYdKj3yog4EdgbAoGAAd+6jl/U9O5yDpE1DJii\nFS5zFof6583803tvc3pWxVm+t5m1CSY1yHi6CdSxnR34xvA5si5HgQW9hkSoPt6z\nYztryG+IX1KaaE9JhDtfJRxfm4ARje/pmS7lEaS6zbiB6gRolmEskVlzhQnBYE8J\nkc4wcvxK2Pb+iIjRW+sZeu0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ecommerce@axial-autonomy-444811-d7.iam.gserviceaccount.com",
+  "client_id": "118087353748013941518",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ecommerce%40axial-autonomy-444811-d7.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

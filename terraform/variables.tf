@@ -6,7 +6,7 @@ variable "project_id" {
 variable "region" {
   description = "GCP region"
   type        = string
-  default     = "us-central1"
+  default     = "us-central1-c"
 }
 
 variable "cluster_name" {
@@ -40,7 +40,6 @@ variable "jwt_secret" {
 }
 
 variable "gke_num_nodes" {
-  description = "Number of GKE nodes"
-  type        = number
   default     = 1
+  description = "number of gke nodes"
 }

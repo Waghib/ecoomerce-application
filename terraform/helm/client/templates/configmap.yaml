@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nginx-config
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+
+      log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+      access_log /var/log/nginx/access.log main;
+      error_log /var/log/nginx/error.log debug;
+
+      server {
+        listen 80;
+        server_name localhost;
+        
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        location / {
+          try_files $uri $uri/ /index.html;
+          add_header Cache-Control "no-store, no-cache, must-revalidate";
+        }
+
+        location /js/ {
+          alias /usr/share/nginx/html/js/;
+          expires 1y;
+          add_header Cache-Control "public, no-transform";
+        }
+
+        location /css/ {
+          alias /usr/share/nginx/html/css/;
+          expires 1y;
+          add_header Cache-Control "public, no-transform";
+        }
+
+        location /images/ {
+          alias /usr/share/nginx/html/images/;
+          expires 1y;
+          add_header Cache-Control "public, no-transform";
+        }
+
+        # Health check endpoint
+        location /health {
+          access_log off;
+          return 200 "healthy\n";
+        }
+      }
+    }
