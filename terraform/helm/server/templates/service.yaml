@@ -11,5 +11,9 @@ spec:
       targetPort: 3000
       protocol: TCP
       name: http
+    - port: 9090
+      targetPort: 3000
+      protocol: TCP
+      name: metrics
   selector:
     app: ecommerce-server
